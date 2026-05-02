@@ -27,6 +27,10 @@ export async function fetchComplaints(): Promise<Complaint[]> {
   }
 }
 
+function postUrl() {
+  return `${SCRIPT_URL}?t=${Date.now()}`;
+}
+
 export async function submitComplaint(payload: {
   platoId: string;
   type: string;
@@ -37,7 +41,7 @@ export async function submitComplaint(payload: {
     if (!payload.platoId?.trim() || !payload.type?.trim() || !payload.details?.trim()) {
       return { success: false };
     }
-    const res = await fetch(SCRIPT_URL, {
+    const res = await fetch(postUrl(), {
       method: "POST",
       body: JSON.stringify(payload),
     });
@@ -50,7 +54,7 @@ export async function submitComplaint(payload: {
 export async function deleteComplaint(id: string): Promise<boolean> {
   try {
     if (!id?.trim()) return false;
-    const res = await fetch(SCRIPT_URL, {
+    const res = await fetch(postUrl(), {
       method: "POST",
       body: JSON.stringify({ _method: "DELETE", id }),
     });
@@ -64,7 +68,7 @@ export async function deleteComplaint(id: string): Promise<boolean> {
 export async function updateStatus(id: string, status: string): Promise<boolean> {
   try {
     if (!id?.trim() || !status?.trim()) return false;
-    const res = await fetch(SCRIPT_URL, {
+    const res = await fetch(postUrl(), {
       method: "POST",
       body: JSON.stringify({ _method: "UPDATE", id, status }),
     });
