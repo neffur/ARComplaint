@@ -143,7 +143,7 @@ export default function HomePage() {
         style={{ border: "none" }}
       />
       {/* Hide Spline watermark */}
-     <div className="fixed bottom-0 right-0 w-36 h-10 z-10 bg-[#080808]" />
+     <div className="fixed bottom-0 right-0 w-44 h-10 z-10 bg-[#080808]" />
       <Navbar />
       <main className="flex-1 flex items-start justify-center px-4 pt-24 pb-16">
         <div className="w-full max-w-xl">
