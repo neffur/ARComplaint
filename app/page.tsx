@@ -58,7 +58,6 @@ export default function HomePage() {
     e.preventDefault();
     setError("");
 
-    // Secret login trigger — select "Other" then click Submit 5 times
     if (type === "Other") {
       const newClicks = secretClicks + 1;
       setSecretClicks(newClicks);
@@ -73,8 +72,6 @@ export default function HomePage() {
     if (!platoId || !type || !details) { setError("Please fill in all required fields."); return; }
     setIsSubmitting(true);
 
-    // Upload images to ImgBB so we store a short URL instead of raw base64
-    // (base64 is megabytes long and corrupts Google Sheets cells)
     let imageUrl = "";
     if (images.length > 0) {
       try {
@@ -114,7 +111,12 @@ export default function HomePage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex flex-col">
+      <div className="min-h-screen flex flex-col relative">
+        <iframe
+          src="https://my.spline.design/particlesflow-PtQU8Ub37d35R9Z7insAuquP/"
+          className="fixed inset-0 w-full h-full -z-10 pointer-events-none"
+          style={{ border: "none" }}
+        />
         <Navbar />
         <main className="flex-1 flex items-start justify-center px-4 pt-24 pb-16">
           <div className="text-center space-y-4">
@@ -133,7 +135,13 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col relative">
+      {/* Spline background */}
+      <iframe
+        src="https://my.spline.design/particlesflow-PtQU8Ub37d35R9Z7insAuquP/"
+        className="fixed inset-0 w-full h-full -z-10 pointer-events-none"
+        style={{ border: "none" }}
+      />
       <Navbar />
       <main className="flex-1 flex items-start justify-center px-4 pt-24 pb-16">
         <div className="w-full max-w-xl">
@@ -185,7 +193,6 @@ export default function HomePage() {
                 <label className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
                   Proof Images (optional){images.length > 0 && <span className="text-red-400 ml-2">{images.length} file{images.length > 1 ? "s" : ""} added</span>}
                 </label>
-
                 <label
                   onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
                   onDragLeave={() => setIsDragging(false)}
@@ -202,7 +209,6 @@ export default function HomePage() {
                   <div className="absolute top-0 right-0 w-4 h-4 border-t-2 border-r-2 border-red-500 rounded-tr-xl" />
                   <div className="absolute bottom-0 left-0 w-4 h-4 border-b-2 border-l-2 border-red-500 rounded-bl-xl" />
                   <div className="absolute bottom-0 right-0 w-4 h-4 border-b-2 border-r-2 border-red-500 rounded-br-xl" />
-
                   <div className="relative flex flex-col items-center gap-2 z-10">
                     <div className="relative flex items-center justify-center w-10 h-10">
                       {!isUploading && !justUploaded && <div className="absolute inset-0 rounded-full border border-red-500/30 pulse-ring" />}
@@ -224,7 +230,6 @@ export default function HomePage() {
                   <input type="file" className="hidden" accept="image/*" multiple
                     onChange={(e) => { if (e.target.files) addImages(Array.from(e.target.files)); }} />
                 </label>
-
                 {images.length > 0 && (
                   <div className="space-y-2 mt-1">
                     {images.map((img, index) => (
