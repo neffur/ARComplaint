@@ -1,4 +1,4 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwao-KACTU1AluSLvrGmWQXmQuwaV2aFBvLJpo05qrmFmRbMKBOeldEJhtYOo1r6Z9fZw/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGRJ7xdg5k6LZwZY8Whhvf1luqkTJ1Z_vhhKyoU9Ux_FL_6cT5v1L3fvIvnXXEUQPB0w/exec"
 
 export interface Complaint {
   ID: string;
