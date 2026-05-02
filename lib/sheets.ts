@@ -15,7 +15,6 @@ export async function fetchComplaints(): Promise<Complaint[]> {
     const res = await fetch(SCRIPT_URL, { cache: "no-store" });
     const data = await res.json();
     if (data.success) {
-      // Filter out empty/ghost rows
       return data.complaints.filter(
         (c: Complaint) =>
           c.ID && c.ID.trim() !== "" &&
@@ -40,7 +39,6 @@ export async function submitComplaint(payload: {
     }
     const res = await fetch(SCRIPT_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
     return await res.json();
@@ -54,7 +52,6 @@ export async function deleteComplaint(id: string): Promise<boolean> {
     if (!id?.trim()) return false;
     const res = await fetch(SCRIPT_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ _method: "DELETE", id }),
     });
     const data = await res.json();
@@ -69,7 +66,6 @@ export async function updateStatus(id: string, status: string): Promise<boolean>
     if (!id?.trim() || !status?.trim()) return false;
     const res = await fetch(SCRIPT_URL, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ _method: "UPDATE", id, status }),
     });
     const data = await res.json();
