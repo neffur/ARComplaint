@@ -6,7 +6,7 @@ import { Navbar } from "@/components/navbar";
 import { fetchComplaints, deleteComplaint, updateStatus, Complaint } from "@/lib/sheets";
 import { BarChart3, Clock, CheckCircle2, AlertCircle, Eye, Trash2, RefreshCw, X } from "lucide-react";
 
-const ADMIN_USER = "arcadmin";
+const ADMIN_USER = "arcadeboss";
 const ADMIN_PASS = "arcadeontop";
 
 export default function DashboardPage() {
