@@ -70,32 +70,31 @@ export default function HomePage() {
     }
 
     if (!platoId || !type || !details) { setError("Please fill in all required fields."); return; }
+    if (images.length === 0) { setError("At least one proof image is required."); return; }
     setIsSubmitting(true);
 
     let imageUrl = "";
-    if (images.length > 0) {
-      try {
-        const uploadedUrls = await Promise.all(
-          images.map(async (img) => {
-            const base64 = img.preview.split(",")[1];
-            const formData = new FormData();
-            formData.append("key", process.env.NEXT_PUBLIC_IMGBB_API_KEY || "");
-            formData.append("image", base64);
-            const res = await fetch("https://api.imgbb.com/1/upload", {
-              method: "POST",
-              body: formData,
-            });
-            const data = await res.json();
-            if (data.success) return data.data.url as string;
-            throw new Error("ImgBB upload failed");
-          })
-        );
-        imageUrl = uploadedUrls.join("|||");
-      } catch {
-        setError("Failed to upload images. Please try again.");
-        setIsSubmitting(false);
-        return;
-      }
+    try {
+      const uploadedUrls = await Promise.all(
+        images.map(async (img) => {
+          const base64 = img.preview.split(",")[1];
+          const formData = new FormData();
+          formData.append("key", process.env.NEXT_PUBLIC_IMGBB_API_KEY || "");
+          formData.append("image", base64);
+          const res = await fetch("https://api.imgbb.com/1/upload", {
+            method: "POST",
+            body: formData,
+          });
+          const data = await res.json();
+          if (data.success) return data.data.url as string;
+          throw new Error("ImgBB upload failed");
+        })
+      );
+      imageUrl = uploadedUrls.join("|||");
+    } catch {
+      setError("Failed to upload images. Please try again.");
+      setIsSubmitting(false);
+      return;
     }
 
     const result = await submitComplaint({ platoId, type, details, imageUrl });
@@ -103,6 +102,8 @@ export default function HomePage() {
       setSubmitted(true);
       setPlatoId(""); setType(""); setDetails(""); setImages([]);
       setSecretClicks(0);
+    } else if ((result as any).error === "rate_limited") {
+      setError(`You already submitted a complaint today. Try again in ${(result as any).hoursLeft} hour(s).`);
     } else {
       setError("Failed to submit. Please try again.");
     }
@@ -142,6 +143,8 @@ export default function HomePage() {
         className="fixed inset-0 w-full h-full -z-10 pointer-events-none"
         style={{ border: "none" }}
       />
+      {/* Hide Spline watermark */}
+      <div className="fixed bottom-0 right-0 w-44 h-14 z-10 bg-[#080808]" />
       <Navbar />
       <main className="flex-1 flex items-start justify-center px-4 pt-24 pb-16">
         <div className="w-full max-w-xl">
@@ -191,7 +194,7 @@ export default function HomePage() {
               {/* Images */}
               <div className="space-y-2">
                 <label className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
-                  Proof Images (optional){images.length > 0 && <span className="text-red-400 ml-2">{images.length} file{images.length > 1 ? "s" : ""} added</span>}
+                  Proof Images *{images.length > 0 && <span className="text-red-400 ml-2">{images.length} file{images.length > 1 ? "s" : ""} added</span>}
                 </label>
                 <label
                   onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
