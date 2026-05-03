@@ -209,7 +209,7 @@ export default function DashboardPage() {
               <p className="text-sm text-muted-foreground mb-2">Showing <span className="text-white font-medium">{filtered.length}</span> complaints</p>
               {filtered.map((c) => (
                 <div key={c.ID} className="rounded-xl bg-card border border-border p-5 hover:border-primary/30 transition-all">
-                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
+                  <div className="flex flex-col gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
                         <span className={`text-xs px-2 py-1 rounded-full border font-medium ${statusColor[c.Status] || "bg-gray-500/20 text-gray-400 border-gray-500/30"}`}>
@@ -221,7 +221,7 @@ export default function DashboardPage() {
                       <p className="font-semibold text-white text-sm mb-1">{c.Type}</p>
                       <p className="text-sm text-muted-foreground line-clamp-2">{c.Details}</p>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                    <div className="flex flex-wrap items-center gap-2 w-full border-t border-border pt-3 mt-1">
                       {c.ImageURL && (
                         <button onClick={() => setSelectedImage(c.ImageURL)}
                           className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-primary/30 text-primary text-xs hover:bg-primary/10 transition-all">
