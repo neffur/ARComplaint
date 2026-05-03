@@ -81,7 +81,7 @@ export function Navbar() {
             className="relative flex cursor-default select-none items-center gap-2"
           >
             <div className="relative">
-              <img src="/logo.png" alt="logo" className="h-10 w-auto" />
+              <img src="/icon.png" alt="logo" className="h-10 w-auto" />
             </div>
             <span className="font-bold text-white">
               <span className="text-red-500">AR</span>Complaint
