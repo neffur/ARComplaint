@@ -87,42 +87,42 @@ export function Navbar() {
               <span className="text-red-500">AR</span>Complaint
             </span>
 
-            {showLock && (
+           {showLock && (
               <div
                 onMouseDown={startHold}
                 onMouseUp={cancelHold}
                 onMouseLeave={cancelHold}
                 onTouchStart={startHold}
                 onTouchEnd={cancelHold}
-                className="absolute -top-2 -right-8 cursor-pointer"
+                className="absolute top-full left-0 mt-2 cursor-pointer z-50"
                 style={{ animation: "fadeIn 0.3s ease" }}
               >
-                <svg width="28" height="28" viewBox="0 0 28 28">
+                <svg width="48" height="48" viewBox="0 0 48 48">
                   <circle
-                    cx="14"
-                    cy="14"
-                    r="12"
+                    cx="24"
+                    cy="24"
+                    r="21"
                     fill="rgba(15,15,15,0.9)"
                     stroke="rgba(239,68,68,0.3)"
-                    strokeWidth="1.5"
+                    strokeWidth="2"
                   />
                   <circle
-                    cx="14"
-                    cy="14"
-                    r="12"
+                    cx="24"
+                    cy="24"
+                    r="21"
                     fill="none"
                     stroke="#ef4444"
-                    strokeWidth="2"
-                    strokeDasharray={`${holdProgress * 0.754} 75.4`}
+                    strokeWidth="3"
+                    strokeDasharray={`${holdProgress * 1.319} 131.9`}
                     strokeLinecap="round"
-                    transform="rotate(-90 14 14)"
+                    transform="rotate(-90 24 24)"
                     style={{ transition: "stroke-dasharray 0.1s linear" }}
                   />
                   <text
-                    x="14"
-                    y="18"
+                    x="24"
+                    y="30"
                     textAnchor="middle"
-                    fontSize="11"
+                    fontSize="18"
                     fill={holding ? "#ef4444" : "rgba(239,68,68,0.7)"}
                   >
                     {"\uD83D\uDD12"}
