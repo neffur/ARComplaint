@@ -103,7 +103,7 @@ export default function DashboardPage() {
       <div className="min-h-screen flex items-center justify-center bg-[#080808] px-4">
         <div className="glass-card rounded-2xl p-8 w-full max-w-sm">
           <div className="text-center mb-6">
-            <img src="/icono.png" alt="logo" className="h-16 w-auto mx-auto mb-4 logo-pulse" />
+            <img src="/icon.png" alt="logo" className="h-16 w-auto mx-auto mb-4 logo-pulse" />
             <h1 className="text-xl font-bold text-white tracking-widest uppercase">Admin Login</h1>
           </div>
           <form onSubmit={handleLogin} className="space-y-4">
