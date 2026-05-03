@@ -6,9 +6,6 @@ import { Navbar } from "@/components/navbar";
 import { fetchComplaints, deleteComplaint, updateStatus, Complaint } from "@/lib/sheets";
 import { BarChart3, Clock, CheckCircle2, AlertCircle, Eye, Trash2, RefreshCw, X } from "lucide-react";
 
-const ADMIN_USER = "arcadeboss";
-const ADMIN_PASS = "arcadeontop";
-
 export default function DashboardPage() {
   const router = useRouter();
   const [authed, setAuthed] = useState(false);
@@ -33,12 +30,18 @@ export default function DashboardPage() {
     setLoading(false);
   };
 
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const form = e.currentTarget;
     const user = (form.elements.namedItem("user") as HTMLInputElement).value;
     const pass = (form.elements.namedItem("pass") as HTMLInputElement).value;
-    if (user === ADMIN_USER && pass === ADMIN_PASS) {
+    const res = await fetch("/api/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user, pass }),
+    });
+    const data = await res.json();
+    if (data.success) {
       sessionStorage.setItem("arc_auth", "1");
       setAuthed(true);
       loadComplaints();
@@ -82,7 +85,7 @@ export default function DashboardPage() {
     URL.revokeObjectURL(url);
   };
 
-const filtered = complaints.filter((c) => c.ID).filter((c) => {
+  const filtered = complaints.filter((c) => c.ID).filter((c) => {
     if (statusFilter !== "All" && c.Status !== statusFilter) return false;
     if (typeFilter !== "All" && c.Type !== typeFilter) return false;
     if (search && !c.PlatoID?.toLowerCase().includes(search.toLowerCase()) && !c.Details?.toLowerCase().includes(search.toLowerCase())) return false;
@@ -95,7 +98,6 @@ const filtered = complaints.filter((c) => c.ID).filter((c) => {
     Resolved: "bg-green-500/20 text-green-400 border-green-500/30",
   };
 
-  // Login gate
   if (!authed) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#080808] px-4">
@@ -137,7 +139,7 @@ const filtered = complaints.filter((c) => c.ID).filter((c) => {
               <h1 className="text-3xl font-bold text-white tracking-tight">COMPLAINT DASHBOARD</h1>
               <p className="text-muted-foreground text-sm mt-1">Manage and review all submitted complaints.</p>
             </div>
-            <div className="flex gap-3">
+            <div className="flex gap-3 flex-wrap">
               <button onClick={loadComplaints} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-muted-foreground hover:text-white hover:border-primary/50 transition-all text-sm">
                 <RefreshCw className="w-4 h-4" /> Refresh
               </button>
@@ -207,7 +209,7 @@ const filtered = complaints.filter((c) => c.ID).filter((c) => {
               <p className="text-sm text-muted-foreground mb-2">Showing <span className="text-white font-medium">{filtered.length}</span> complaints</p>
               {filtered.map((c) => (
                 <div key={c.ID} className="rounded-xl bg-card border border-border p-5 hover:border-primary/30 transition-all">
-                  <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2 mb-2">
                         <span className={`text-xs px-2 py-1 rounded-full border font-medium ${statusColor[c.Status] || "bg-gray-500/20 text-gray-400 border-gray-500/30"}`}>
@@ -219,7 +221,7 @@ const filtered = complaints.filter((c) => c.ID).filter((c) => {
                       <p className="font-semibold text-white text-sm mb-1">{c.Type}</p>
                       <p className="text-sm text-muted-foreground line-clamp-2">{c.Details}</p>
                     </div>
-                    <div className="flex flex-wrap items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto mt-2 sm:mt-0">
                       {c.ImageURL && (
                         <button onClick={() => setSelectedImage(c.ImageURL)}
                           className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-primary/30 text-primary text-xs hover:bg-primary/10 transition-all">
@@ -243,7 +245,7 @@ const filtered = complaints.filter((c) => c.ID).filter((c) => {
         </div>
       </main>
 
-      {/* Image modal — supports multiple images stored as "url1|||url2|||url3" */}
+      {/* Image modal */}
       {selectedImage && (() => {
         const imageList = selectedImage.split("|||").filter(Boolean);
         return (
