@@ -16,19 +16,25 @@ export default function DashboardPage() {
   const [search, setSearch] = useState("");
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const [selectedComplaint, setSelectedComplaint] = useState<Complaint | null>(null);
+  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    const auth = sessionStorage.getItem("arc_auth");
-    if (auth === "1") { setAuthed(true); loadComplaints(); }
-    else setLoading(false);
-  }, []);
-
-  const loadComplaints = async () => {
-    setLoading(true);
+  const loadComplaints = async (showLoader = true) => {
+    if (showLoader) setLoading(true);
     const data = await fetchComplaints();
     setComplaints(data.reverse());
     setLoading(false);
   };
+
+  useEffect(() => {
+    const auth = sessionStorage.getItem("arc_auth");
+    if (auth === "1") {
+      setAuthed(true);
+      setLoading(false);
+      loadComplaints(false);
+    } else {
+      setLoading(false);
+    }
+  }, []);
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -44,33 +50,31 @@ export default function DashboardPage() {
     if (data.success) {
       sessionStorage.setItem("arc_auth", "1");
       setAuthed(true);
-      loadComplaints();
+      loadComplaints(false);
     } else {
       alert("Invalid credentials");
     }
   };
 
-  const [deletingIds, setDeletingIds] = useState<Set<string>>(new Set());
-
   const handleDelete = async (id: string) => {
     if (deletingIds.has(id)) return;
     if (!confirm("Delete this complaint?")) return;
+    setComplaints((prev) => prev.filter((c) => c.ID !== id));
     setDeletingIds((prev) => new Set(prev).add(id));
     const ok = await deleteComplaint(id);
     setDeletingIds((prev) => { const s = new Set(prev); s.delete(id); return s; });
-    if (ok) {
-      setComplaints((prev) => prev.filter((c) => c.ID !== id));
-    } else {
-      alert("Failed to delete. Please try again.");
+    if (!ok) {
+      alert("Failed to delete. Refreshing...");
+      loadComplaints(false);
     }
   };
 
   const handleStatus = async (id: string, status: string) => {
+    setComplaints((prev) => prev.map((c) => c.ID === id ? { ...c, Status: status } : c));
     const ok = await updateStatus(id, status);
-    if (ok) {
-      setComplaints((prev) => prev.map((c) => c.ID === id ? { ...c, Status: status } : c));
-    } else {
-      alert("Failed to update status. Please try again.");
+    if (!ok) {
+      alert("Failed to update. Refreshing...");
+      loadComplaints(false);
     }
   };
 
@@ -140,7 +144,7 @@ export default function DashboardPage() {
               <p className="text-muted-foreground text-sm mt-1">Manage and review all submitted complaints.</p>
             </div>
             <div className="flex gap-3 flex-wrap">
-              <button onClick={loadComplaints} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-muted-foreground hover:text-white hover:border-primary/50 transition-all text-sm">
+              <button onClick={() => loadComplaints(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-muted-foreground hover:text-white hover:border-primary/50 transition-all text-sm">
                 <RefreshCw className="w-4 h-4" /> Refresh
               </button>
               <button onClick={exportCSV} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-primary/50 text-primary hover:bg-primary/10 transition-all text-sm font-medium">
@@ -201,7 +205,22 @@ export default function DashboardPage() {
 
           {/* Complaints */}
           {loading ? (
-            <div className="text-center py-20 text-muted-foreground">Loading complaints...</div>
+            <div className="space-y-3">
+              {[...Array(5)].map((_, i) => (
+                <div key={i} className="rounded-xl bg-card border border-border p-5 animate-pulse">
+                  <div className="flex flex-col gap-3">
+                    <div className="flex gap-2 mb-2">
+                      <div className="h-5 w-16 bg-white/10 rounded-full" />
+                      <div className="h-5 w-24 bg-white/10 rounded-full" />
+                      <div className="h-5 w-32 bg-white/10 rounded-full" />
+                    </div>
+                    <div className="h-4 w-48 bg-white/10 rounded" />
+                    <div className="h-4 w-full bg-white/10 rounded" />
+                    <div className="h-4 w-3/4 bg-white/10 rounded" />
+                  </div>
+                </div>
+              ))}
+            </div>
           ) : filtered.length === 0 ? (
             <div className="text-center py-20 text-muted-foreground">No complaints found.</div>
           ) : (
