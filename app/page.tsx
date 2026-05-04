@@ -112,7 +112,7 @@ export default function HomePage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex flex-col relative">
+      <div className="min-h-screen flex flex-col relative overflow-x-hidden">
         <iframe
           src="https://my.spline.design/particlesflow-PtQU8Ub37d35R9Z7insAuquP/"
           className="fixed inset-0 w-full h-full -z-10 pointer-events-none"
@@ -136,7 +136,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative">
+    <div className="min-h-screen flex flex-col relative overflow-x-hidden">
       {/* Spline background */}
       <iframe
         src="https://my.spline.design/particlesflow-PtQU8Ub37d35R9Z7insAuquP/"
