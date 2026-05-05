@@ -1,4 +1,4 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGRJ7xdg5k6LZwZY8Whhvf1luqkTJ1Z_vhhKyoU9Ux_FL_6cT5v1L3fvIvnXXEUQPB0w/exec"
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGRJ7xdg5k6LZwZY8Whhvf1luqkTJ1Z_vhhKyoU9Ux_FL_6cT5v1L3fvIvnXXEUQPB0w/exec";
 
 export interface Complaint {
   ID: string;
@@ -8,6 +8,7 @@ export interface Complaint {
   ImageURL: string;
   Status: string;
   Date: string;
+  IP: string;
 }
 
 export async function fetchComplaints(): Promise<Complaint[]> {
@@ -31,18 +32,20 @@ function postUrl() {
   return `${SCRIPT_URL}?t=${Date.now()}`;
 }
 
+// submitComplaint goes through /api/submit so the server can attach the IP
 export async function submitComplaint(payload: {
   platoId: string;
   type: string;
   details: string;
   imageUrl: string;
-}): Promise<{ success: boolean; id?: string }> {
+}): Promise<{ success: boolean; error?: string; hoursLeft?: number }> {
   try {
     if (!payload.platoId?.trim() || !payload.type?.trim() || !payload.details?.trim()) {
       return { success: false };
     }
-    const res = await fetch(postUrl(), {
+    const res = await fetch("/api/submit", {
       method: "POST",
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
     return await res.json();
