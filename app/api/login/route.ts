@@ -23,7 +23,6 @@ export async function POST(req: NextRequest) {
   ipMap.set(ip, now);
 
   const body = await req.json();
-  // Add IP to the payload
   const payloadWithIP = { ...body, ip };
 
   const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxGRJ7xdg5k6LZwZY8Whhvf1luqkTJ1Z_vhhKyoU9Ux_FL_6cT5v1L3fvIvnXXEUQPB0w/exec";
