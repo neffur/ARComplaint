@@ -25,12 +25,11 @@ export default function DashboardPage() {
     setLoading(false);
   };
 
-  useEffect(() => {
+ useEffect(() => {
     const auth = sessionStorage.getItem("arc_auth");
     if (auth === "1") {
       setAuthed(true);
-      setLoading(false);
-      loadComplaints(false);
+      loadComplaints(true);
     } else {
       setLoading(false);
     }
