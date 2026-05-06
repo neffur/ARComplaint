@@ -33,6 +33,29 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify(payloadWithIP),
     });
     const data = await res.json();
+
+    // Send Discord notification if submission succeeded
+    if (data.success && process.env.DISCORD_WEBHOOK_URL) {
+      await fetch(process.env.DISCORD_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          embeds: [{
+            title: "🚨 New Complaint Submitted",
+            color: 0xe22323,
+            fields: [
+              { name: "Plato ID", value: body.platoId || "N/A", inline: true },
+              { name: "Type", value: body.type || "N/A", inline: true },
+              { name: "Details", value: body.details?.slice(0, 200) || "N/A", inline: false },
+              { name: "Has Proof", value: body.imageUrl ? "✅ Yes" : "❌ No", inline: true },
+            ],
+            footer: { text: "ARComplaint System" },
+            timestamp: new Date().toISOString(),
+          }]
+        }),
+      });
+    }
+
     return NextResponse.json(data);
   } catch {
     return NextResponse.json({ success: false, error: "server_error" }, { status: 500 });
