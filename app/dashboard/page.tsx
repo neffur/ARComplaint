@@ -25,7 +25,7 @@ export default function DashboardPage() {
     setLoading(false);
   };
 
- useEffect(() => {
+  useEffect(() => {
     const auth = sessionStorage.getItem("arc_auth");
     if (auth === "1") {
       setAuthed(true);
@@ -140,7 +140,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
             <div>
               <h1 className="text-3xl font-bold text-white tracking-tight">COMPLAINT DASHBOARD</h1>
-             <p className="text-sm text-muted-foreground">{c.Details}</p>
+              <p className="text-muted-foreground text-sm mt-1">Manage and review all submitted complaints.</p>
             </div>
             <div className="flex gap-3 flex-wrap">
               <button onClick={() => loadComplaints(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-muted-foreground hover:text-white hover:border-primary/50 transition-all text-sm">
@@ -176,139 +176,4 @@ export default function DashboardPage() {
                 </div>
               </div>
             ))}
-          </div>
-
-          {/* Filters */}
-          <div className="flex flex-wrap gap-3 mb-6 p-4 rounded-xl bg-card border border-border">
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="🔍 Search by Plato ID or keywords..."
-              className="flex-1 min-w-[200px] h-10 px-4 rounded-lg bg-input border border-border text-foreground text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all" />
-            <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}
-              className="h-10 px-3 rounded-lg bg-input border border-border text-foreground text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer">
-              <option value="All">All Statuses</option>
-              <option value="Pending">Pending</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Resolved">Resolved</option>
-            </select>
-            <select value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}
-              className="h-10 px-3 rounded-lg bg-input border border-border text-foreground text-sm appearance-none focus:outline-none focus:ring-2 focus:ring-primary/50 cursor-pointer">
-              <option value="All">All Types</option>
-              {types.map((t) => <option key={t} value={t}>{t}</option>)}
-            </select>
-            {(statusFilter !== "All" || typeFilter !== "All" || search) && (
-              <button onClick={() => { setStatusFilter("All"); setTypeFilter("All"); setSearch(""); }}
-                className="h-10 px-4 rounded-lg border border-primary/50 text-primary text-sm hover:bg-primary/10 transition-all flex items-center gap-1">
-                <X className="w-3 h-3" /> Clear
-              </button>
-            )}
-          </div>
-
-          {/* Complaints */}
-          {loading ? (
-            <div className="space-y-3">
-              {[...Array(5)].map((_, i) => (
-                <div key={i} className="rounded-xl bg-card border border-border p-5 animate-pulse">
-                  <div className="flex flex-col gap-3">
-                    <div className="flex gap-2 mb-2">
-                      <div className="h-5 w-16 bg-white/10 rounded-full" />
-                      <div className="h-5 w-24 bg-white/10 rounded-full" />
-                      <div className="h-5 w-32 bg-white/10 rounded-full" />
-                    </div>
-                    <div className="h-4 w-48 bg-white/10 rounded" />
-                    <div className="h-4 w-full bg-white/10 rounded" />
-                    <div className="h-4 w-3/4 bg-white/10 rounded" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-20 text-muted-foreground">No complaints found.</div>
-          ) : (
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground mb-2">Showing <span className="text-white font-medium">{filtered.length}</span> complaints</p>
-              {filtered.map((c) => (
-                <div key={c.ID} className="rounded-xl bg-card border border-border p-5 hover:border-primary/30 transition-all">
-                  <div className="flex flex-col gap-3">
-                    <div className="flex-1 min-w-0">
-                      <div className="flex flex-wrap items-center gap-2 mb-2">
-                        <span className={`text-xs px-2 py-1 rounded-full border font-medium ${statusColor[c.Status] || "bg-gray-500/20 text-gray-400 border-gray-500/30"}`}>
-                          {c.Status}
-                        </span>
-                        <span className="text-xs text-muted-foreground font-mono">{c.PlatoID}</span>
-                        <span className="text-xs text-muted-foreground">{c.Date}</span>
-                      </div>
-                      <p className="font-semibold text-white text-sm mb-1">{c.Type}</p>
-                      <p className="text-sm text-muted-foreground line-clamp-2">{c.Details}</p>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-2 w-full border-t border-border pt-3 mt-1">
-                      {c.ImageURL && (
-                        <button onClick={() => setSelectedImage(c.ImageURL)}
-                          className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-primary/30 text-primary text-xs hover:bg-primary/10 transition-all">
-                          <Eye className="w-3 h-3" /> View Proof
-                        </button>
-                      )}
-                      <button onClick={() => setSelectedComplaint(c)}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-blue-500/30 text-blue-400 text-xs hover:bg-blue-500/10 transition-all">
-                        Update Status
-                      </button>
-                      <button onClick={() => handleDelete(c.ID)} disabled={deletingIds.has(c.ID)}
-                        className="flex items-center gap-1 px-3 py-1.5 rounded-lg border border-red-500/30 text-red-400 text-xs hover:bg-red-500/10 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
-                        <Trash2 className="w-3 h-3" /> {deletingIds.has(c.ID) ? "Deleting..." : "Delete"}
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </main>
-
-      {/* Image modal */}
-      {selectedImage && (() => {
-        const imageList = selectedImage.split("|||").filter(Boolean);
-        return (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setSelectedImage(null)}>
-            <div className="relative max-w-3xl w-full max-h-[90vh] overflow-y-auto space-y-4" onClick={(e) => e.stopPropagation()}>
-              <button onClick={() => setSelectedImage(null)} className="sticky top-0 float-right p-2 rounded-full bg-red-500/20 border border-red-500/30 text-red-400 hover:bg-red-500/30 transition-all z-10 ml-auto block">
-                <X className="w-4 h-4" />
-              </button>
-              {imageList.length > 1 && (
-                <p className="text-center text-sm text-muted-foreground">{imageList.length} proof images</p>
-              )}
-              {imageList.map((url, i) => (
-                <img key={i} src={url} alt={`Proof ${i + 1}`} className="w-full rounded-xl border border-border" />
-              ))}
-            </div>
-          </div>
-        );
-      })()}
-
-      {/* Status update modal */}
-      {selectedComplaint && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4" onClick={() => setSelectedComplaint(null)}>
-          <div className="glass-card rounded-2xl p-6 w-full max-w-sm" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-white font-bold mb-4">Update Status</h3>
-            <p className="text-muted-foreground text-sm mb-4">{selectedComplaint.PlatoID} — {selectedComplaint.Type}</p>
-            <div className="space-y-2">
-              {["Pending", "In Progress", "Resolved"].map((s) => (
-                <button key={s} onClick={() => { handleStatus(selectedComplaint.ID, s); setSelectedComplaint(null); }}
-                  className={`w-full py-2 rounded-lg border text-sm font-medium transition-all ${selectedComplaint.Status === s ? "border-primary bg-primary/20 text-primary" : "border-border text-muted-foreground hover:border-primary/50 hover:text-white"}`}>
-                  {s}
-                </button>
-              ))}
-            </div>
-            <button onClick={() => setSelectedComplaint(null)} className="mt-4 w-full py-2 rounded-lg border border-red-500/30 text-red-400 text-sm hover:bg-red-500/10 transition-all">
-              Cancel
-            </button>
-          </div>
-        </div>
-      )}
-
-      <footer className="border-t border-border py-6">
-        <div className="max-w-7xl mx-auto px-4 text-center">
-          <p className="text-sm text-muted-foreground">© <span className="font-bold text-white"><span className="text-red-500">AR</span>Complaint</span></p>
-        </div>
-      </footer>
-    </div>
-  );
-}
+          </div
