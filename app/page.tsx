@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Navbar } from "@/components/navbar";
 import { submitComplaint } from "@/lib/sheets";
-import { Upload, CheckCircle, X, AlertCircle } from "lucide-react";
+import { Upload, CheckCircle, X, AlertCircle, Timer } from "lucide-react";
 
 const complaintTypes = [
   "Requesting gifts or donations",
@@ -14,6 +14,16 @@ const complaintTypes = [
   "Multi-tab abuse",
   "Other",
 ];
+
+interface Bubble {
+  id: number;
+  x: number;
+  y: number;
+  size: number;
+  color: string;
+  vx: number;
+  vy: number;
+}
 
 export default function HomePage() {
   const router = useRouter();
@@ -28,6 +38,116 @@ export default function HomePage() {
   const [isUploading, setIsUploading] = useState(false);
   const [justUploaded, setJustUploaded] = useState(false);
   const [secretClicks, setSecretClicks] = useState(0);
+  const [cooldown, setCooldown] = useState<{ active: boolean; hoursLeft: number }>({ active: false, hoursLeft: 0 });
+  const [isMobile, setIsMobile] = useState(false);
+  const [shakeHint, setShakeHint] = useState(false);
+  const [bubbles, setBubbles] = useState<Bubble[]>([]);
+  const [bubbleTimer, setBubbleTimer] = useState<NodeJS.Timeout | null>(null);
+  const [poppingId, setPoppingId] = useState<number | null>(null);
+  const animRef = useRef<number | null>(null);
+  const bubblesRef = useRef<Bubble[]>([]);
+
+  // Detect mobile
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768 || /Mobi|Android/i.test(navigator.userAgent));
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
+
+  // Animate bubbles
+  useEffect(() => {
+    if (bubbles.length === 0) {
+      if (animRef.current) cancelAnimationFrame(animRef.current);
+      return;
+    }
+    bubblesRef.current = bubbles;
+    const animate = () => {
+      bubblesRef.current = bubblesRef.current.map((b) => {
+        let nx = b.x + b.vx;
+        let ny = b.y + b.vy;
+        let nvx = b.vx;
+        let nvy = b.vy;
+        if (nx < 5 || nx > 90) nvx = -nvx;
+        if (ny < 5 || ny > 85) nvy = -nvy;
+        return { ...b, x: nx, y: ny, vx: nvx, vy: nvy };
+      });
+      setBubbles([...bubblesRef.current]);
+      animRef.current = requestAnimationFrame(animate);
+    };
+    animRef.current = requestAnimationFrame(animate);
+    return () => { if (animRef.current) cancelAnimationFrame(animRef.current); };
+  }, [bubbles.length]);
+
+  const spawnBubbles = () => {
+    const colors = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6", "#a855f7", "#ec4899"];
+    const newBubbles: Bubble[] = Array.from({ length: 6 }, (_, i) => ({
+      id: Date.now() + i,
+      x: 10 + Math.random() * 80,
+      y: 10 + Math.random() * 70,
+      size: 50 + Math.random() * 40,
+      color: colors[Math.floor(Math.random() * colors.length)],
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+    }));
+    setBubbles(newBubbles);
+    bubblesRef.current = newBubbles;
+
+    // Bubbles disappear after 12 seconds
+    const timer = setTimeout(() => {
+      setBubbles([]);
+      bubblesRef.current = [];
+    }, 12000);
+    setBubbleTimer(timer);
+  };
+
+  const popBubble = (id: number) => {
+    setPoppingId(id);
+    setTimeout(() => {
+      setBubbles((prev) => prev.filter((b) => b.id !== id));
+      bubblesRef.current = bubblesRef.current.filter((b) => b.id !== id);
+      setPoppingId(null);
+      // If all bubbles popped, bypass cooldown
+      if (bubblesRef.current.length === 0) {
+        setCooldown({ active: false, hoursLeft: 0 });
+        if (bubbleTimer) clearTimeout(bubbleTimer);
+      }
+    }, 300);
+  };
+
+  // Shake detection
+  useEffect(() => {
+    if (!cooldown.active || !isMobile) return;
+
+    let lastX = 0, lastY = 0, lastZ = 0;
+    let shakeCount = 0;
+    let lastShake = 0;
+    const THRESHOLD = 20;
+
+    const handleMotion = (e: DeviceMotionEvent) => {
+      const acc = e.accelerationIncludingGravity;
+      if (!acc) return;
+      const x = acc.x || 0, y = acc.y || 0, z = acc.z || 0;
+      const delta = Math.abs(x - lastX) + Math.abs(y - lastY) + Math.abs(z - lastZ);
+      const now = Date.now();
+      if (delta > THRESHOLD && now - lastShake > 300) {
+        shakeCount++;
+        lastShake = now;
+        if (shakeCount >= 4) {
+          shakeCount = 0;
+          spawnBubbles();
+        }
+      }
+      lastX = x; lastY = y; lastZ = z;
+    };
+
+    window.addEventListener("devicemotion", handleMotion);
+    const hint = setTimeout(() => setShakeHint(true), 1500);
+    return () => {
+      window.removeEventListener("devicemotion", handleMotion);
+      clearTimeout(hint);
+    };
+  }, [cooldown.active, isMobile]);
 
   const triggerUploadAnimation = () => {
     setIsUploading(true);
@@ -103,12 +223,86 @@ export default function HomePage() {
       setPlatoId(""); setType(""); setDetails(""); setImages([]);
       setSecretClicks(0);
     } else if ((result as any).error === "rate_limited") {
-      setError(`You already submitted a complaint today. Try again in ${(result as any).hoursLeft} hour(s).`);
+      setCooldown({ active: true, hoursLeft: (result as any).hoursLeft || 24 });
     } else {
       setError("Failed to submit. Please try again.");
     }
     setIsSubmitting(false);
   };
+
+  // Cooldown screen
+  if (cooldown.active) {
+    return (
+      <div className="min-h-screen flex flex-col relative overflow-x-hidden">
+        <iframe
+          src="https://my.spline.design/particlesflow-PtQU8Ub37d35R9Z7insAuquP/"
+          className="fixed inset-0 w-full h-full -z-10 pointer-events-none"
+          style={{ border: "none" }}
+        />
+
+        {/* Floating bubbles */}
+        {bubbles.map((b) => (
+          <button
+            key={b.id}
+            onClick={() => popBubble(b.id)}
+            style={{
+              position: "fixed",
+              left: `${b.x}%`,
+              top: `${b.y}%`,
+              width: b.size,
+              height: b.size,
+              borderRadius: "50%",
+              background: `radial-gradient(circle at 35% 35%, white 0%, ${b.color}cc 40%, ${b.color} 100%)`,
+              border: `2px solid ${b.color}`,
+              boxShadow: `0 0 20px ${b.color}88`,
+              zIndex: 100,
+              cursor: "pointer",
+              transform: poppingId === b.id ? "scale(1.5)" : "scale(1)",
+              opacity: poppingId === b.id ? 0 : 1,
+              transition: "transform 0.3s ease, opacity 0.3s ease",
+            }}
+          />
+        ))}
+
+        <Navbar />
+        <main className="flex-1 flex items-center justify-center px-4">
+          <div className="text-center space-y-6 max-w-sm">
+            <div className={`inline-flex h-24 w-24 items-center justify-center rounded-full bg-yellow-500/10 border border-yellow-500/30 mx-auto ${bubbles.length > 0 ? "animate-bounce" : ""}`}>
+              <Timer className="h-12 w-12 text-yellow-400" />
+            </div>
+            <h2 className="text-2xl font-bold text-white">Cooldown Active</h2>
+            <p className="text-muted-foreground">
+              You already submitted a complaint today.<br />
+              Try again in <span className="text-yellow-400 font-bold">{cooldown.hoursLeft} hour{cooldown.hoursLeft !== 1 ? "s" : ""}</span>.
+            </p>
+
+            {isMobile && bubbles.length === 0 && (
+              <div className="space-y-3">
+                {shakeHint && (
+                  <p className="text-sm text-white/70 animate-pulse">
+                    📱 Shake your phone to spawn bubbles<br />
+                    <span className="text-xs text-white/40">Pop all bubbles to submit again</span>
+                  </p>
+                )}
+              </div>
+            )}
+
+            {isMobile && bubbles.length > 0 && (
+              <p className="text-sm text-white animate-pulse font-bold">
+                🫧 Pop all {bubbles.length} bubble{bubbles.length !== 1 ? "s" : ""}!
+              </p>
+            )}
+
+            {!isMobile && (
+              <p className="text-xs text-muted-foreground">
+                This bypass is only available on mobile devices.
+              </p>
+            )}
+          </div>
+        </main>
+      </div>
+    );
+  }
 
   if (submitted) {
     return (
@@ -137,7 +331,6 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen flex flex-col relative overflow-x-hidden">
-      {/* Spline background */}
       <iframe
         src="https://my.spline.design/particlesflow-PtQU8Ub37d35R9Z7insAuquP/"
         className="fixed inset-0 w-full h-full -z-10 pointer-events-none"
@@ -158,7 +351,6 @@ export default function HomePage() {
               </div>
             )}
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Plato ID */}
               <div className="space-y-2">
                 <label className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Your Plato ID *</label>
                 <div className="relative">
@@ -168,7 +360,6 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Type */}
               <div className="space-y-2">
                 <label className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Complaint Type *</label>
                 <div className="relative">
@@ -181,7 +372,6 @@ export default function HomePage() {
                 </div>
               </div>
 
-              {/* Details */}
               <div className="space-y-2">
                 <label className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Complaint Details *</label>
                 <textarea value={details} onChange={(e) => setDetails(e.target.value)}
@@ -189,7 +379,6 @@ export default function HomePage() {
                   rows={4} className="w-full px-4 py-3 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all resize-none" />
               </div>
 
-              {/* Images */}
               <div className="space-y-2">
                 <label className="text-xs font-medium uppercase tracking-widest text-muted-foreground">
                   Proof Images *{images.length > 0 && <span className="text-red-400 ml-2">{images.length} file{images.length > 1 ? "s" : ""} added</span>}
@@ -250,7 +439,6 @@ export default function HomePage() {
                 )}
               </div>
 
-              {/* Submit */}
               <button type="submit" disabled={isSubmitting}
                 className="btn-shine w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold text-sm uppercase tracking-widest hover:bg-primary/90 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
                 {isSubmitting ? (
