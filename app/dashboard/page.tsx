@@ -140,7 +140,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
             <div>
               <h1 className="text-3xl font-bold text-white tracking-tight">COMPLAINT DASHBOARD</h1>
-              <p className="text-muted-foreground text-sm mt-1">Manage and review all submitted complaints.</p>
+             <p className="text-sm text-muted-foreground">{c.Details}</p>
             </div>
             <div className="flex gap-3 flex-wrap">
               <button onClick={() => loadComplaints(true)} className="flex items-center gap-2 px-4 py-2 rounded-lg border border-border text-muted-foreground hover:text-white hover:border-primary/50 transition-all text-sm">
