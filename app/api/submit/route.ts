@@ -56,30 +56,4 @@ export async function POST(req: NextRequest) {
       });
     }
 
-      // Add extra proof images as separate embeds
-      const extraEmbeds = imageUrls.slice(1).map((url: string, i: number) => ({
-        title: `🖼️ Proof Image ${i + 2}`,
-        color: 0xe22323,
-        image: { url },
-      }));
-
-      await fetch(process.env.DISCORD_WEBHOOK_URL, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          content: "**New complaint received!**",
-          embeds: [...embeds, ...extraEmbeds],
-        }),
-      });
-    }
-
-    return NextResponse.json(data);
-  } catch {
-    return NextResponse.json(
-      { success: false, error: "server_error" },
-      { status: 500 }
-    );
-  }
-}
+  
