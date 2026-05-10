@@ -53,4 +53,4 @@ export async function POST(req: NextRequest) {
         body: JSON.stringify({
           content: `🚨 **New Complaint**\n\n👤 **Plato ID:** ${body.platoId || "N/A"}\n📋 **Type:** ${body.type || "N/A"}\n📝 **Details:** ${body.details?.slice(0, 500) || "N/A"}${imageContent}`,
         }),
-      });
+      })
