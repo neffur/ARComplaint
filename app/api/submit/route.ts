@@ -40,48 +40,21 @@ export async function POST(req: NextRequest) {
     const data = await res.json();
 
     // Send Discord notification if submission succeeded
-    if (data.success && process.env.DISCORD_WEBHOOK_URL) {
-      const imageUrls = (body.imageUrl || "")
-        .split("|||")
-        .filter(Boolean);
+  if (data.success && process.env.DISCORD_WEBHOOK_URL) {
+      const imageUrls = (body.imageUrl || "").split("|||").filter(Boolean);
 
-      const embeds = [
-        {
-          title: "🚨 New Complaint Submitted",
-          color: 0xe22323,
-          fields: [
-            {
-              name: "Plato ID",
-              value: body.platoId || "N/A",
-              inline: true,
-            },
-            {
-              name: "Type",
-              value: body.type || "N/A",
-              inline: true,
-            },
-            {
-              name: "Details",
-              value: body.details?.slice(0, 500) || "N/A",
-              inline: false,
-            },
-            {
-              name: "Proof Count",
-              value: imageUrls.length
-                ? `🖼️ ${imageUrls.length} image(s)`
-                : "❌ No Proof",
-              inline: true,
-            },
-          ],
-          image: imageUrls[0]
-            ? { url: imageUrls[0] }
-            : undefined,
-          footer: {
-            text: "ARComplaint System",
-          },
-          timestamp: new Date().toISOString(),
-        },
-      ];
+      const imageContent = imageUrls.length > 0
+        ? "\n\n" + imageUrls.join("\n")
+        : "";
+
+      await fetch(process.env.DISCORD_WEBHOOK_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          content: `🚨 **New Complaint**\n\n👤 **Plato ID:** ${body.platoId || "N/A"}\n📋 **Type:** ${body.type || "N/A"}\n📝 **Details:** ${body.details?.slice(0, 500) || "N/A"}${imageContent}`,
+        }),
+      });
+    }
 
       // Add extra proof images as separate embeds
       const extraEmbeds = imageUrls.slice(1).map((url: string, i: number) => ({
