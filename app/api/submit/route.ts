@@ -39,18 +39,38 @@ export async function POST(req: NextRequest) {
 
     const data = await res.json();
 
-    // Send Discord notification if submission succeeded
-  if (data.success && process.env.DISCORD_WEBHOOK_URL) {
-      const imageUrls = (body.imageUrl || "").split("|||").filter(Boolean);
+    // Send raw Discord webhook with image links
+    if (data.success && process.env.DISCORD_WEBHOOK_URL) {
+      const imageUrls = (body.imageUrl || "")
+        .split("|||")
+        .filter(Boolean);
 
-      const imageContent = imageUrls.length > 0
-        ? "\n\n" + imageUrls.join("\n")
-        : "";
+      const imageLinks =
+        imageUrls.length > 0
+          ? "\n\n📎 Proofs:\n" + imageUrls.join("\n")
+          : "\n\n❌ No proofs attached";
 
       await fetch(process.env.DISCORD_WEBHOOK_URL, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+        },
         body: JSON.stringify({
-          content: `🚨 **New Complaint**\n\n👤 **Plato ID:** ${body.platoId || "N/A"}\n📋 **Type:** ${body.type || "N/A"}\n📝 **Details:** ${body.details?.slice(0, 500) || "N/A"}${imageContent}`,
+          content:
+            `🚨 NEW COMPLAINT\n\n` +
+            `👤 Plato ID: ${body.platoId || "N/A"}\n` +
+            `📋 Type: ${body.type || "N/A"}\n` +
+            `📝 Details: ${body.details?.slice(0, 500) || "N/A"}` +
+            imageLinks,
         }),
-      })
+      });
+    }
+
+    return NextResponse.json(data);
+  } catch {
+    return NextResponse.json(
+      { success: false, error: "server_error" },
+      { status: 500 }
+    );
+  }
+}
