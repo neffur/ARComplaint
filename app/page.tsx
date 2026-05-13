@@ -356,7 +356,7 @@ export default function HomePage() {
                 <label className="text-xs font-medium uppercase tracking-widest text-muted-foreground">Your Plato ID *</label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-mono text-muted-foreground">ID</span>
-                  <input type="text" value={platoId} onChange={(e) => setPlatoId(e.target.value)} placeholder="PLATO-ID"
+                  <input type="text" value={platoId} onChange={(e) => setPlatoId(e.target.value.replace(/\s/g, ""))} placeholder="PLATO-ID"
                     className="w-full h-12 pl-12 pr-4 rounded-xl bg-input border border-border text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary transition-all font-mono" />
                 </div>
               </div>
