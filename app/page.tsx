@@ -233,10 +233,10 @@ export default function HomePage() {
   // Cooldown screen
   if (cooldown.active) {
     return (
-      <div className="min-h-screen flex flex-col relative overflow-x-hidden">
+      <div className="isolate min-h-screen flex flex-col relative overflow-x-hidden bg-[#0f0f0f]">
         <iframe
           src="https://my.spline.design/particlesflow-PtQU8Ub37d35R9Z7insAuquP/"
-          className="fixed inset-0 w-full h-full -z-10 pointer-events-none"
+          className="fixed inset-0 z-0 w-full h-full pointer-events-none"
           style={{ border: "none" }}
         />
 
@@ -266,7 +266,7 @@ export default function HomePage() {
         ))}
 
         <Navbar />
-        <main className="flex-1 flex items-center justify-center px-4">
+        <main className="relative z-10 flex-1 flex items-center justify-center px-4">
           <div className="text-center space-y-6 max-w-sm">
             <div className={`inline-flex h-24 w-24 items-center justify-center rounded-full bg-yellow-500/10 border border-yellow-500/30 mx-auto ${bubbles.length > 0 ? "animate-bounce" : ""}`}>
               <Timer className="h-12 w-12 text-yellow-400" />
@@ -307,14 +307,14 @@ export default function HomePage() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex flex-col relative overflow-x-hidden">
+      <div className="isolate min-h-screen flex flex-col relative overflow-x-hidden bg-[#0f0f0f]">
         <iframe
           src="https://my.spline.design/particlesflow-PtQU8Ub37d35R9Z7insAuquP/"
-          className="fixed inset-0 w-full h-full -z-10 pointer-events-none"
+          className="fixed inset-0 z-0 w-full h-full pointer-events-none"
           style={{ border: "none" }}
         />
         <Navbar />
-        <main className="flex-1 flex items-start justify-center px-4 pt-24 pb-16">
+        <main className="relative z-10 flex-1 flex items-start justify-center px-4 pt-24 pb-16">
           <div className="text-center space-y-4">
             <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-green-500/10 border border-green-500/30">
               <CheckCircle className="h-10 w-10 text-green-500" />
@@ -331,14 +331,14 @@ export default function HomePage() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col relative overflow-x-hidden">
+    <div className="isolate min-h-screen flex flex-col relative overflow-x-hidden bg-[#0f0f0f]">
       <iframe
         src="https://my.spline.design/particlesflow-PtQU8Ub37d35R9Z7insAuquP/"
-        className="fixed inset-0 w-full h-full -z-10 pointer-events-none"
+        className="fixed inset-0 z-0 w-full h-full pointer-events-none"
         style={{ border: "none" }}
       />
       <Navbar />
-      <main className="flex-1 flex items-start justify-center px-4 pt-24 pb-16">
+      <main className="relative z-10 flex-1 flex items-start justify-center px-4 pt-24 pb-16">
         <div className="w-full max-w-xl">
           <div className="rounded-2xl bg-card border border-border p-8 shadow-xl shadow-black/20 relative overflow-hidden">
             <div className="absolute top-0 right-0 w-16 h-16 bg-primary" style={{ clipPath: "polygon(100% 0, 0 0, 100% 100%)" }} />
@@ -456,7 +456,7 @@ export default function HomePage() {
           </div>
         </div>
       </main>
-      <footer className="border-t border-border py-6">
+      <footer className="relative z-10 border-t border-border bg-[#0f0f0f] py-6">
         <div className="max-w-7xl mx-auto px-4 text-center">
           <p className="text-sm text-muted-foreground">© <span className="font-bold text-white"><span className="text-red-500">AR</span>Complaint</span></p>
         </div>
