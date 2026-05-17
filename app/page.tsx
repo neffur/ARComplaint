@@ -456,8 +456,11 @@ export default function HomePage() {
           </div>
         </div>
       </main>
-      <footer className="relative z-10 border-t border-border bg-[#0f0f0f] py-6">
-        <div className="max-w-7xl mx-auto px-4 text-center">
+      <footer
+        className="relative z-10 border-t border-border bg-[#0f0f0f] px-4 pt-6"
+        style={{ paddingBottom: "calc(1.5rem + env(safe-area-inset-bottom))" }}
+      >
+        <div className="max-w-7xl mx-auto text-center">
           <p className="text-sm text-muted-foreground">© <span className="font-bold text-white"><span className="text-red-500">AR</span>Complaint</span></p>
         </div>
       </footer>
