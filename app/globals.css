@@ -128,10 +128,15 @@
   * {
     @apply border-border outline-ring/50;
   }
+  html {
+    background: #0f0f0f;
+    overscroll-behavior-y: none;
+  }
   body {
     @apply bg-background text-foreground;
     background: linear-gradient(180deg, #0f0f0f 0%, #1a1a1a 100%);
     min-height: 100vh;
+    overscroll-behavior-y: none;
   }
 }
 
