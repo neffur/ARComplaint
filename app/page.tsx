@@ -234,12 +234,7 @@ export default function HomePage() {
   if (cooldown.active) {
     return (
       <div className="isolate min-h-screen flex flex-col relative overflow-x-hidden bg-[#0f0f0f]">
-        <iframe
-          src="https://my.spline.design/particlesflow-PtQU8Ub37d35R9Z7insAuquP/"
-          className="fixed inset-0 z-0 w-full h-full pointer-events-none"
-          style={{ border: "none" }}
-        />
-
+      
         {/* Floating bubbles */}
         {bubbles.map((b) => (
           <button
