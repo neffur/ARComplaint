@@ -233,8 +233,7 @@ export default function HomePage() {
   // Cooldown screen
   if (cooldown.active) {
     return (
-      <div className="isolate min-h-screen flex flex-col relative overflow-x-hidden bg-[#0f0f0f]">
-      
+          <div className="min-h-screen flex flex-col">      
         {/* Floating bubbles */}
         {bubbles.map((b) => (
           <button
