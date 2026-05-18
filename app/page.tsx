@@ -320,12 +320,7 @@ export default function HomePage() {
   }
 
   return (
-    <div className="isolate min-h-screen flex flex-col relative overflow-x-hidden bg-[#0f0f0f]">
-      <iframe
-        src="https://my.spline.design/particlesflow-PtQU8Ub37d35R9Z7insAuquP/"
-        className="fixed inset-0 z-0 w-full h-full pointer-events-none"
-        style={{ border: "none" }}
-      />
+   <div className="min-h-screen flex flex-col">
       <Navbar />
       <main className="relative z-10 flex-1 flex items-start justify-center px-4 pt-24 pb-16">
         <div className="w-full max-w-xl">
